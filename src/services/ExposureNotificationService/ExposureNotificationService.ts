@@ -135,7 +135,7 @@ export class ExposureNotificationService {
   }
 
   initiateExposureCheckEvent = async () => {
-    log.debug({category: 'background', payload: 'initiateExposureCheckEvent'});
+    log.debug({category: 'background', message: 'initiateExposureCheckEvent'});
     if (await this.shouldPerformExposureCheck()) {
       const payload: NotificationPayload = {
         alertTitle: this.i18n.translate('Notification.ReminderTitle'),
@@ -147,12 +147,12 @@ export class ExposureNotificationService {
   };
 
   executeExposureCheckEvent = async () => {
-    log.debug({category: 'background', payload: 'executeExposureCheckEvent'});
+    log.debug({category: 'background', message: 'executeExposureCheckEvent'});
     try {
       await this.updateExposureStatusInBackground();
     } catch (error) {
       // Noop
-      log.error({category: 'background', payload: 'executeExposureCheckEvent'}, error);
+      log.error({category: 'background', message: 'executeExposureCheckEvent', error});
     }
   };
 
@@ -216,7 +216,7 @@ export class ExposureNotificationService {
       await this.processNotification();
       captureMessage('updatedExposureStatusInBackground after', {exposureStatus: this.exposureStatus.get()});
     } catch (error) {
-      log.error({category: 'background', payload: 'updateExposureStatusInBackground'}, error);
+      log.error({category: 'background', message: 'updateExposureStatusInBackground', error});
     }
   }
 
@@ -571,8 +571,10 @@ export class ExposureNotificationService {
       const lastCheckedDate = new Date(lastCheckedTimestamp);
       log.debug({
         category: 'debug',
-        periodicTaskIntervalInMinutes: PERIODIC_TASK_INTERVAL_IN_MINUTES,
-        numberOfMinutesSinceLastExposureCheck: Math.ceil(minutesBetween(lastCheckedDate, today)),
+        payload: {
+          periodicTaskIntervalInMinutes: PERIODIC_TASK_INTERVAL_IN_MINUTES,
+          numberOfMinutesSinceLastExposureCheck: Math.ceil(minutesBetween(lastCheckedDate, today)),
+        },
       });
       if (Math.ceil(minutesBetween(lastCheckedDate, today)) < PERIODIC_TASK_INTERVAL_IN_MINUTES) {
         captureMessage('shouldPerformExposureCheck - Too soon to check.');
